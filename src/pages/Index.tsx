@@ -1,16 +1,25 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+// CORTEX - Community Resource Intelligence Engine
+// Main landing page - redirects to dashboard
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+const Index = () => {
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Redirect to main app
+    navigate('/', { replace: true });
+  }, [navigate]);
+  
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-muted-foreground">Loading CORTEX...</p>
+      </div>
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
