@@ -1,0 +1,16 @@
+# Ignore server folder (we're using api/ instead)
+server/
+
+# Ignore development files
+.env.local
+.env.development
+*.log
+node_modules/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE files
+.vscode/
+.idea/
