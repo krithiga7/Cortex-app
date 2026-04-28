@@ -23,15 +23,79 @@ import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
 
-// Protected Route Component - DISABLED FOR DEMO
+// Protected Route Component
 const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode; requiredRole?: 'admin' | 'volunteer' }) => {
-  // Skip authentication check - allow all routes
+  const [authState, setAuthState] = useState(authStore.getState());
+  
+  useEffect(() => {
+    const unsubscribe = authStore.subscribe((newState) => {
+      setAuthState(newState);
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+  
+  if (!authState.isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  if (requiredRole && authState.user?.role !== requiredRole) {
+    return <Navigate to="/" replace />;
+  }
+  
   return <>{children}</>;
 };
 
-// Role-Based Redirect Component - AUTO LOGIN FOR DEMO
+// Role-Based Redirect Component
 const RoleBasedDashboard = () => {
-  // Skip authentication - go directly to dashboard
+  const [authState, setAuthState] = useState(authStore.getState());
+  const [isChecking, setIsChecking] = useState(true);
+  
+  useEffect(() => {
+    const unsubscribe = authStore.subscribe((newState) => {
+      console.log('Auth state changed:', newState);
+      setAuthState(newState);
+      setIsChecking(false);
+    });
+    
+    // Small delay to ensure auth state is loaded
+    const timer = setTimeout(() => {
+      setIsChecking(false);
+    }, 100);
+    
+    return () => {
+      unsubscribe();
+      clearTimeout(timer);
+    };
+  }, []);
+  
+  // Show loading while checking
+  if (isChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Show loading or redirect if not authenticated
+  if (!authState.isAuthenticated) {
+    console.log('Not authenticated, redirecting to login');
+    return <Navigate to="/login" replace />;
+  }
+  
+  // Redirect volunteer to their dashboard
+  if (authState.user?.role === 'volunteer') {
+    console.log('Volunteer detected, redirecting to volunteer-dashboard', authState.user);
+    return <Navigate to="/volunteer-dashboard" replace />;
+  }
+  
+  // Admin gets the full admin dashboard
+  console.log('Admin detected, showing admin dashboard', authState.user);
   return <Dashboard />;
 };
 
@@ -42,6 +106,32 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/volunteer-registration" element={
+            <ProtectedRoute requiredRole="volunteer">
+              <VolunteerRegistration />
+            </ProtectedRoute>
+          } />
+          <Route path="/volunteer-dashboard" element={
+            <ProtectedRoute requiredRole="volunteer">
+              <VolunteerDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/volunteer-assignments" element={
+            <ProtectedRoute requiredRole="volunteer">
+              <VolunteerAssignments />
+            </ProtectedRoute>
+          } />
+          <Route path="/volunteer-analytics" element={
+            <ProtectedRoute requiredRole="volunteer">
+              <VolunteerAnalytics />
+            </ProtectedRoute>
+          } />
+          <Route path="/volunteer-upload" element={
+            <ProtectedRoute requiredRole="volunteer">
+              <VolunteerUpload />
+            </ProtectedRoute>
+          } />
           <Route path="/" element={<RoleBasedDashboard />} />
           <Route path="/requests" element={
             <ProtectedRoute requiredRole="admin">
