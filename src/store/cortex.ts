@@ -97,9 +97,22 @@ async function initializeData() {
     console.log('✅ Backend data loaded');
   } catch (error) {
     console.error('Backend load failed:', error);
+    // Fallback to empty data for demo
+    state.requests = [];
+    state.volunteers = [];
+    state.assignments = [];
     state.loading = false;
     emit();
   }
+  
+  // Timeout fallback - force loading off after 5 seconds
+  setTimeout(() => {
+    if (state.loading) {
+      console.warn('Forcing loading state off after timeout');
+      state.loading = false;
+      emit();
+    }
+  }, 5000);
 }
 
 // Start initialization
