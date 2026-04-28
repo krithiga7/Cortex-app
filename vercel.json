@@ -24,6 +24,7 @@
     }
   ],
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "BUILD_TIMESTAMP": "2026-04-28T18:00:00Z"
   }
 }
